@@ -1,9 +1,9 @@
 {
-    "name": "idp2p-js",
+    "name": "idp2p-js-core",
     "version": "0.4.2",
-    "description": "idp2p javascript",
+    "description": "idp2p javascript core",
     "author": "Adem Çağlın",
-    "repository": "https://github.com/idp2p/idp2p-js",
+    "repository": "https://github.com/idp2p/idp2p-js-core",
     "license": "MIT",
     "keywords": [
         "idp2p"
@@ -17,7 +17,7 @@
     "scripts": {
         "cli": "ts-node src/cli.ts",
         "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
-        "test": "jest",
+        "test": "jest --runInBand",
         "clean": "rm -rf dist build package",
         "ts-node": "ts-node",
         "docs": "typedoc --entryPoints src/main.ts",
@@ -44,6 +44,8 @@
         "typescript": "^4.2.3"
     },
     "dependencies": {
-        "elliptic": "^6.5.4"
+        "class-transformer": "^0.5.1",
+        "elliptic": "^6.5.4",
+        "reflect-metadata": "^0.1.13"
     }
 }
