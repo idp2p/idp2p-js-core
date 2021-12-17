@@ -37,6 +37,7 @@ export class CreateDocInput{
     agreementSecret: string;
     services: Service[];
 }
+
 export function create_doc(input: CreateDocInput): IdDocument {
     var assertionKey = ec.keyFromSecret(input.assertionSecret);
     var authenticationKey = ec.keyFromSecret(input.authenticationSecret);

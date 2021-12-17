@@ -46,6 +46,7 @@
     "dependencies": {
         "class-transformer": "^0.5.1",
         "elliptic": "^6.5.4",
+        "multiformats": "^9.5.4",
         "reflect-metadata": "^0.1.13"
     }
 }
