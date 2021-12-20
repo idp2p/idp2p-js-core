@@ -58,5 +58,10 @@ export const utils = {
         const hash = await hasher.digest(bytes);
         const cid = CID.create(1, 512, hash);
         return cid.toString();
-    }
+    },
+    async getDigest(data: any): Promise<string> {
+        let bytes = Uint8Array.from(JSON.stringify(data), x => x.charCodeAt(0));
+        const hash = await hasher.encode(bytes);
+        return this.encode(hash);
+    },
 }

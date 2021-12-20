@@ -1,5 +1,5 @@
 //import {  instanceToPlain, plainToInstance } from "class-transformer";
-import { CreateDocInput, create_doc, IdDocument } from "./did_doc";
+import { CreateDocInput, IdDocument } from "./did_doc";
 //const elliptic = require('elliptic');
 
 test('did_doc parse', () => {
@@ -48,7 +48,7 @@ test('did_doc generate test', async () => {
     input.assertionSecret = "bu4lbv3svya3ld5s6oq44mlj3vf6abyt2sktl6hla3ewrlwjat3gq";
     input.authenticationSecret = "b3zdrsdabskurlxvdibhgbsdfyjqjdyhzhjavfo6m6xfgx4eivltq";
     input.agreementSecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
-    const doc = create_doc(input);
+    const doc = IdDocument.from(input);
     const expected_doc: IdDocument = {
         id: "did:p2p:bagaaiera62a5raawyfngt4d7w3jetwrks2k2xp3bcnuzhxjeqteordlsuzja",
         controller: "did:p2p:bagaaiera62a5raawyfngt4d7w3jetwrks2k2xp3bcnuzhxjeqteordlsuzja",
