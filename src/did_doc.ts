@@ -19,23 +19,14 @@ export class IdDocument {
     controller: string;
     @Expose({ name: "@context" })
     @Type(() => String)
-    context: string[];
+    context: string[] = [];
     @Type(() => VerificationMethod)
-    verificationMethod: VerificationMethod[];
-    assertionMethod: string[];
-    authentication: string[];
-    keyAgreement: string[];
+    verificationMethod: VerificationMethod[] = [];
+    assertionMethod: string[] = [];
+    authentication: string[] = [];
+    keyAgreement: string[] = [];
     @Type(() => Service)
-    service: Service[];
-
-    constructor(){
-        this.context = [];
-        this.verificationMethod = [];
-        this.assertionMethod = [];
-        this.authentication = [];
-        this.keyAgreement = [];
-        this.service = [];
-    }
+    service: Service[] = [];
 
     static from(input: CreateDocInput) : IdDocument{
         const assertionKey = utils.secretToEdPublic(input.assertionSecret);
@@ -44,7 +35,7 @@ export class IdDocument {
         let doc = new IdDocument();
         doc.id =  `did:p2p:${input.id}`;
         doc.controller = `did:p2p:${input.id}`;
-        doc.service = input.services;
+        doc.service = input.service;
         let assertionVerMethod = new VerificationMethod();
         assertionVerMethod.controller = `did:p2p:${input.id}`;
         assertionVerMethod.type = ED25519;
@@ -72,7 +63,7 @@ export class IdDocument {
         doc.context.push("https://www.w3.org/ns/did/v1");
         doc.context.push("https://w3id.org/security/suites/ed25519-2020/v1");
         doc.context.push("https://w3id.org/security/suites/x25519-2020/v1");
-        doc.service = input.services;
+        doc.service = input.service;
         return doc;
     } 
 }
@@ -82,5 +73,5 @@ export class CreateDocInput{
     assertionSecret: string;
     authenticationSecret: string;
     agreementSecret: string;
-    services: Service[];
+    service: Service[];
 }

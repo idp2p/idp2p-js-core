@@ -6,23 +6,11 @@ const EdDSA = require('elliptic').eddsa;
 export const ED25519 = "Ed25519VerificationKey2020";
 export const X25519 = "X25519KeyAgreementKey2020";
 
-export class SignerKey {
-    type: string;
-    public: string;
-
-    static from(secret: string) : SignerKey{
-        let key = new SignerKey();
-        key.type = ED25519;
-        key.public = utils.secretToEdPublic(secret);
-        return key;
-    }
-}
-
-export class RecoveryKey {
+export class IdKey {
     type: string;
     digest: string;
-    static async from(secret: string):  Promise<RecoveryKey>{
-        let key = new RecoveryKey();
+    static async from(secret: string):  Promise<IdKey>{
+        let key = new IdKey();
         key.type = ED25519;
         key.digest = await utils.secretToEdPublicDigest(secret);
         return key;
