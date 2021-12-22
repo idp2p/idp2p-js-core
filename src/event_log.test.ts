@@ -8,9 +8,8 @@ test('did_doc parse', () => {
     let c = new EventLogSetProofChange();
     c.key = "1";
     c.value = "2";
-    p.type = "SetProof";
     p.change = c;
-    p.signerPublic = "signer_public";
+    p.signerPublic = "bass....";
     p.previous = "1";
     p.nextSignerKey = {
         type: ED25519,

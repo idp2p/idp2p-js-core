@@ -1,23 +1,25 @@
-import { IdKey } from "./main";
+import { NextKey } from "./main";
 
 export class EventLogRecoverChange {
-    nextRecoveryKey: IdKey;
+    type: string= "SetRecoveryKey";
+    nextRecoveryKey: NextKey;
 }
 
 export class EventLogSetProofChange {
+    type: string = "SetProof";
     key: string;
     value: string;
 }
 
 export class EventLogSetDocChange {
+    type: string= "SetDocument";
     value: string;
 }
 
 export class EventLogPayload {
     previous: string;
-    type: string;
     signerPublic: string;
-    nextSignerKey: IdKey;
+    nextSignerKey: NextKey;
     change: EventLogRecoverChange | EventLogSetProofChange | EventLogRecoverChange;
 }
 

@@ -1,16 +1,16 @@
 import { CID } from 'multiformats/cid';
 import { sha256 as hasher } from 'multiformats/hashes/sha2';
-import { generateKeyPairFromSeed } from "@stablelib/x25519";
+import { generateKeyPairFromSeed as generateAgreementKey } from "@stablelib/x25519";
+import { generateKeyPairFromSeed as generateSignerKey, sign, verify } from "@stablelib/ed25519";
 import { base32 } from "multiformats/bases/base32";
-const EdDSA = require('elliptic').eddsa;
 export const ED25519 = "Ed25519VerificationKey2020";
 export const X25519 = "X25519KeyAgreementKey2020";
 
-export class IdKey {
+export class NextKey {
     type: string;
     digest: string;
-    static async from(secret: string):  Promise<IdKey>{
-        let key = new IdKey();
+    static async from(secret: string):  Promise<NextKey>{
+        let key = new NextKey();
         key.type = ED25519;
         key.digest = await utils.secretToEdPublicDigest(secret);
         return key;
@@ -25,20 +25,16 @@ export const utils = {
         return base32.decode(str)
     },
     secretToEdPublic(base32Secret: string): string {
-        let ec = new EdDSA('ed25519');
-        const key = ec.keyFromSecret(this.decode(base32Secret));
-        const publicKey = this.encode(new Uint8Array(key.getPublic()));
-        return publicKey;
+        const keyPair = generateSignerKey(this.decode(base32Secret));
+        return this.encode(keyPair.publicKey);
     },
     async secretToEdPublicDigest(base32Secret: string): Promise<string> {
-        let ec = new EdDSA('ed25519');
-        const key = ec.keyFromSecret(this.decode(base32Secret));
-        const publicKey = new Uint8Array(key.getPublic());
-        const hash = await hasher.encode(publicKey);
+        const keyPair = generateSignerKey(this.decode(base32Secret));
+        const hash = await hasher.encode(keyPair.publicKey);
         return this.encode(hash);
     },
     secretToXPublic(base32Secret: string): string {
-        const keyPair = generateKeyPairFromSeed(this.decode(base32Secret));
+        const keyPair = generateAgreementKey(this.decode(base32Secret));
         return this.encode(keyPair.publicKey);
     },
     async getCid(data: any): Promise<string> {
@@ -52,4 +48,18 @@ export const utils = {
         const hash = await hasher.encode(bytes);
         return this.encode(hash);
     },
+    async sign(data: any, secret: string): Promise<string>{
+        const key = generateSignerKey(this.decode(secret));
+        const json = JSON.stringify(data);
+        let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
+        const digest = await hasher.encode(bytes);
+        var signature = sign(key.secretKey, digest);
+        return this.encode(signature);
+    },
+    async verify(proof: string, data: any, publicKey: string) : Promise<Boolean> {
+        const json = JSON.stringify(data);
+        let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
+        const digest = await hasher.encode(bytes);
+        return verify(this.decode(publicKey), digest, this.decode(proof));
+    } 
 }

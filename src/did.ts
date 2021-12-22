@@ -1,8 +1,8 @@
 import { IdDocument,CreateDocInput, Service } from "./did_doc";
-import { utils } from "./main";
-import { MicroLedger } from "./microledger";
+import { NextKey, utils } from "./main";
+import { MicroLedger, MicroLedgerInception } from "./microledger";
 
-export class IdentityInput{
+export class CreateIdentityInput{
     signerSecret: string;
     recoverySecret: string;
     assertionSecret: string;
@@ -18,7 +18,7 @@ export class Identity {
     async getDigest(): Promise<string>{
        return utils.getDigest(this);
     }
-    static async new(input: IdentityInput) : Promise<Identity> {
+    static async new(input: CreateIdentityInput) : Promise<Identity> {
         let docInput = new CreateDocInput();
         docInput.agreementSecret = input.agreementSecret;
         docInput.assertionSecret = input.assertionSecret;
@@ -26,7 +26,11 @@ export class Identity {
         docInput.service = input.service;
         let doc = IdDocument.from(docInput);
         let did = new Identity();
-        did.microledger = new MicroLedger();
+        let inception = new MicroLedgerInception();
+        inception.signerNextKey = await NextKey.from(input.signerSecret);
+        inception.recoveryNextKey = await NextKey.from(input.recoverySecret);
+        did.microledger =  new MicroLedger();
+        did.microledger.inception = inception;
         did.document = doc;
         return did;
     }

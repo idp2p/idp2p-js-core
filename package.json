@@ -45,8 +45,8 @@
     },
     "dependencies": {
         "@stablelib/x25519": "^1.0.1",
+        "@stablelib/ed25519": "^1.0.2",
         "class-transformer": "^0.5.1",
-        "elliptic": "^6.5.4",
         "multiformats": "^9.5.4",
         "reflect-metadata": "^0.1.13"
     }
