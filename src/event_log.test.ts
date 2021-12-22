@@ -1,6 +1,6 @@
 import {  instanceToPlain, plainToInstance } from "class-transformer";
 import {EventLog, EventLogPayload, EventLogSetProofChange} from "./event_log";
-import { ED25519 } from "./main";
+import { ED25519 } from ".";
 
 test('did_doc parse', () => {
     let e = new EventLog();
@@ -13,7 +13,7 @@ test('did_doc parse', () => {
     p.previous = "1";
     p.nextSignerKey = {
         type: ED25519,
-        digest: "dd"
+        value: "dd"
     }
     e.payload = p;
     e.proof = "proof";

@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { ED25519, utils, X25519 } from './main';
+import { ED25519, utils, X25519 } from '.';
 
 export class Service {
     id: string;

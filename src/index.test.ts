@@ -1,4 +1,4 @@
-import { utils } from "./main";
+import { utils } from ".";
 
 test('cid generate test', async () => {
   let input = {

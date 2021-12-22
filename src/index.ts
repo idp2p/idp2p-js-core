@@ -8,11 +8,11 @@ export const X25519 = "X25519KeyAgreementKey2020";
 
 export class NextKey {
     type: string;
-    digest: string;
+    value: string;
     static async from(secret: string):  Promise<NextKey>{
         let key = new NextKey();
         key.type = ED25519;
-        key.digest = await utils.secretToEdPublicDigest(secret);
+        key.value = await utils.secretToEdPublicDigest(secret);
         return key;
     }
 }

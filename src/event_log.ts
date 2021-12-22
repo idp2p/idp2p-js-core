@@ -1,4 +1,4 @@
-import { NextKey } from "./main";
+import { NextKey } from ".";
 
 export class EventLogRecoverChange {
     type: string= "SetRecoveryKey";

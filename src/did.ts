@@ -1,5 +1,5 @@
 import { IdDocument,CreateDocInput, Service } from "./did_doc";
-import { NextKey, utils } from "./main";
+import { NextKey, utils } from ".";
 import { MicroLedger, MicroLedgerInception } from "./microledger";
 
 export class CreateIdentityInput{

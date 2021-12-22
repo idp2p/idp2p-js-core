@@ -1,7 +1,7 @@
 import assert from "assert";
 import { Type } from "class-transformer";
 import { EventLog } from "./event_log";
-import { NextKey, utils } from "./main";
+import { NextKey, utils } from ".";
 
 export class MicroLedgerState {
     currentEventId: string;
