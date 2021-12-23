@@ -6,17 +6,6 @@ import { base32 } from "multiformats/bases/base32";
 export const ED25519 = "Ed25519VerificationKey2020";
 export const X25519 = "X25519KeyAgreementKey2020";
 
-export class NextKey {
-    type: string;
-    value: string;
-    static async from(secret: string):  Promise<NextKey>{
-        let key = new NextKey();
-        key.type = ED25519;
-        key.value = await utils.secretToEdPublicDigest(secret);
-        return key;
-    }
-}
-
 export const utils = {
     encode(bytes: Uint8Array): string {
         return base32.encode(bytes)
@@ -28,14 +17,14 @@ export const utils = {
         const keyPair = generateSignerKey(this.decode(base32Secret));
         return this.encode(keyPair.publicKey);
     },
-    async secretToEdPublicDigest(base32Secret: string): Promise<string> {
-        const keyPair = generateSignerKey(this.decode(base32Secret));
-        const hash = await hasher.encode(keyPair.publicKey);
-        return this.encode(hash);
-    },
     secretToXPublic(base32Secret: string): string {
         const keyPair = generateAgreementKey(this.decode(base32Secret));
         return this.encode(keyPair.publicKey);
+    },
+    async secretToDigest(base32Secret: string): Promise<string> {
+        const keyPair = generateSignerKey(this.decode(base32Secret));
+        const hash = await hasher.encode(keyPair.publicKey);
+        return this.encode(hash);
     },
     async getCid(data: any): Promise<string> {
         let bytes = Uint8Array.from(JSON.stringify(data), x => x.charCodeAt(0));

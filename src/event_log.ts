@@ -1,26 +1,24 @@
-import { NextKey } from ".";
-
-export class EventLogRecoverChange {
-    type: string= "SetRecoveryKey";
-    nextRecoveryKey: NextKey;
+export class EventLogSetRecoveryKeyChange {
+    type: string = "SetRecoveryKey";
+    recoveryNextKeyDigest: string;
 }
 
 export class EventLogSetProofChange {
-    type: string = "SetProof";
+    type: string = "SetSetProof";
     key: string;
     value: string;
 }
 
-export class EventLogSetDocChange {
-    type: string= "SetDocument";
+export class EventLogSetDocumentChange {
+    type: string = "SetDocument";
     value: string;
 }
 
 export class EventLogPayload {
     previous: string;
-    signerPublic: string;
-    nextSignerKey: NextKey;
-    change: EventLogRecoverChange | EventLogSetProofChange | EventLogRecoverChange;
+    signerPublicKey: string;
+    signerNextKeyDigest: string;
+    change: EventLogSetRecoveryKeyChange | EventLogSetProofChange | EventLogSetDocumentChange;
 }
 
 export class EventLog {

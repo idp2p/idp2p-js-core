@@ -9,12 +9,9 @@ test('did_doc parse', () => {
     c.key = "1";
     c.value = "2";
     p.change = c;
-    p.signerPublic = "bass....";
+    p.signerPublicKey = "bass....";
     p.previous = "1";
-    p.nextSignerKey = {
-        type: ED25519,
-        value: "dd"
-    }
+    p.signerNextKeyDigest = "dd";
     e.payload = p;
     e.proof = "proof";
     let plain = instanceToPlain(e);
