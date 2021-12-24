@@ -1,15 +1,16 @@
-export class EventLogSetRecoveryKeyChange {
-    type: string = "SetRecoveryKey";
-    recoveryNextKeyDigest: string;
+export class EventLogRecover {
+    type: string = "Recover";
+    keyType: string;
+    recoveryKeyDigest: string;
 }
 
-export class EventLogSetProofChange {
+export class EventLogSetProof {
     type: string = "SetSetProof";
     key: string;
     value: string;
 }
 
-export class EventLogSetDocumentChange {
+export class EventLogSetDocument {
     type: string = "SetDocument";
     value: string;
 }
@@ -18,7 +19,7 @@ export class EventLogPayload {
     previous: string;
     signerPublicKey: string;
     signerNextKeyDigest: string;
-    change: EventLogSetRecoveryKeyChange | EventLogSetProofChange | EventLogSetDocumentChange;
+    change: EventLogRecover | EventLogSetProof | EventLogSetDocument;
 }
 
 export class EventLog {

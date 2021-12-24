@@ -7,7 +7,7 @@ test('did parse', async () => {
     input.authenticationSecret = "b3zdrsdabskurlxvdibhgbsdfyjqjdyhzhjavfo6m6xfgx4eivltq";
     input.agreementSecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
     input.recoverySecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
-    input.signerSecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
+    input.inceptionSecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
     input.service = [{
         id: "string",
         type: "string",

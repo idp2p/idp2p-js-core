@@ -1,9 +1,10 @@
 import { IdDocument,CreateDocInput, Service } from "./did_doc";
-import { NextKey, utils } from ".";
+import { ED25519, utils } from ".";
 import { MicroLedger, MicroLedgerInception } from "./microledger";
 
 export class CreateIdentityInput{
-    signerSecret: string;
+    inceptionSecret: string;
+    nextSecret: string;
     recoverySecret: string;
     assertionSecret: string;
     authenticationSecret: string;
@@ -27,8 +28,9 @@ export class Identity {
         let doc = IdDocument.from(docInput);
         let did = new Identity();
         let inception = new MicroLedgerInception();
-        inception.signerNextKey = await NextKey.from(input.signerSecret);
-        inception.recoveryNextKey = await NextKey.from(input.recoverySecret);
+        inception.keyType = ED25519;
+        inception.inceptionKey = await utils.secretToEdPublic(input.inceptionSecret);
+        inception.recoveryKeyDigest = await utils.secretToKeyDigest(input.recoverySecret);
         did.microledger =  new MicroLedger();
         did.microledger.inception = inception;
         did.document = doc;

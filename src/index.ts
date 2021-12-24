@@ -21,7 +21,7 @@ export const utils = {
         const keyPair = generateAgreementKey(this.decode(base32Secret));
         return this.encode(keyPair.publicKey);
     },
-    async secretToDigest(base32Secret: string): Promise<string> {
+    async secretToKeyDigest(base32Secret: string): Promise<string> {
         const keyPair = generateSignerKey(this.decode(base32Secret));
         const hash = await hasher.encode(keyPair.publicKey);
         return this.encode(hash);

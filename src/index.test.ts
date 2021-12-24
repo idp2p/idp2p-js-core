@@ -1,19 +1,9 @@
 import { utils } from ".";
 
 test('cid generate test', async () => {
-  let input = {
-    signer_key: {
-      type: "Ed25519VerificationKey2020",
-      public: "btvd3rhsk7xtocytpe3dfry34uldcn6qwfhh6eu4bcgq2miu2246q"
-    },
-    recovery_key: {
-      type: "Ed25519VerificationKey2020",
-      digest: "btvd3rhsk7xtocytpe3dfry34uldcn6qwfhh6eu4bcgq2miu2246q"
-    }
-  }
+  let input = {};
   const id = await utils.getCid(input);
-  const expected_id = "bagaaieraxyvdfdi2doyf4pu2r5wam53sfj5kxpqbqsrtbnshmbiufs3bqina";
-
+  const expected_id = "bagaaieraiqjw7i2vwntyuekgvulpp2det2kpwt6cd7tx5ayqybqpmhfk76fa";
   expect(id).toEqual(expected_id);
 });
 

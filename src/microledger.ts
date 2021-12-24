@@ -1,19 +1,21 @@
 import assert from "assert";
 import { Type } from "class-transformer";
-import { EventLog, EventLogSetRecoveryKeyChange, EventLogSetDocumentChange, EventLogSetProofChange } from "./event_log";
+import { EventLog, EventLogRecover, EventLogSetDocument, EventLogSetProof } from "./event_log";
 import { utils } from ".";
 
 export class MicroLedgerState {
     eventId: string;
-    signerNextKeyDigest: string;
-    recoveryNextKeyDigest: string;
+    keyType: string;
+    nextKeyDigest: string;
+    recoveryKeyDigest: string;
     proofs: Map<string, string>;
     documentDigest: string;
 }
 
 export class MicroLedgerInception {
-    inceptionPublicKey: string;
-    recoveryNextKeyDigest: string;
+    keyType: string;
+    inceptionKey: string;
+    recoveryKeyDigest: string;
     async getId(): Promise<string> {
         return await utils.getCid(this);
     }
@@ -27,8 +29,7 @@ export class MicroLedger {
         let state = new MicroLedgerState();
         state.eventId = await this.inception.getId();
         state.proofs = new Map<string, string>();
-        state.recoveryNextKeyDigest = this.inception.recoveryNextKeyDigest;
-        state.signerNextKeyDigest =  await utils.getDigest(this.inception.inceptionPublicKey);
+        state.nextKeyDigest = await utils.getDigest(this.inception.inceptionKey);
         const expectedCid = await this.inception.getId();
         assert(expectedCid === cid);
         this.events.forEach(async event => {
@@ -38,24 +39,25 @@ export class MicroLedger {
             assert(verified);
             let currentSignerDigest = await utils.getDigest(event.payload.signerPublicKey);
             switch (typeof event.payload.change) {
-                case typeof EventLogSetDocumentChange:
-                    const setDocChange = <EventLogSetDocumentChange> event.payload.change;
-                    assert(currentSignerDigest === state.signerNextKeyDigest);
-                    state.documentDigest = setDocChange.value; 
+                case typeof EventLogSetDocument:
+                    const setDocChange = <EventLogSetDocument>event.payload.change;
+                    assert(currentSignerDigest === state.nextKeyDigest);
+                    state.documentDigest = setDocChange.value;
                     break;
-                case typeof  EventLogSetProofChange:
-                    const setProofChange = <EventLogSetProofChange> event.payload.change;
-                    assert(currentSignerDigest === state.signerNextKeyDigest);
+                case typeof EventLogSetProof:
+                    const setProofChange = <EventLogSetProof>event.payload.change;
+                    assert(currentSignerDigest === state.nextKeyDigest);
                     state.proofs.set(setProofChange.key, setProofChange.value);
                     break;
-                case typeof  EventLogSetRecoveryKeyChange:
-                    const setRecChange = <EventLogSetRecoveryKeyChange> event.payload.change;
-                    assert(currentSignerDigest === state.recoveryNextKeyDigest);
-                    state.recoveryNextKeyDigest = setRecChange.recoveryNextKeyDigest;
+                case typeof EventLogRecover:
+                    const setRecChange = <EventLogRecover>event.payload.change;
+                    assert(currentSignerDigest === state.nextKeyDigest);
+                    state.keyType = setRecChange.keyType;
+                    state.recoveryKeyDigest = setRecChange.recoveryKeyDigest;
                     break;
             }
             state.eventId = await utils.getCid(this);
-            state.signerNextKeyDigest = event.payload.signerNextKeyDigest;
+            state.nextKeyDigest = event.payload.signerNextKeyDigest;
         });
         return state;
     }

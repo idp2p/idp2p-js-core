@@ -1,11 +1,10 @@
 import {  instanceToPlain, plainToInstance } from "class-transformer";
-import {EventLog, EventLogPayload, EventLogSetProofChange} from "./event_log";
-import { ED25519 } from ".";
+import {EventLog, EventLogPayload, EventLogSetProof} from "./event_log";
 
 test('did_doc parse', () => {
     let e = new EventLog();
     let p = new EventLogPayload();
-    let c = new EventLogSetProofChange();
+    let c = new EventLogSetProof();
     c.key = "1";
     c.value = "2";
     p.change = c;
