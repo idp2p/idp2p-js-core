@@ -29,7 +29,7 @@ export class Identity {
         let did = new Identity();
         let inception = new MicroLedgerInception();
         inception.keyType = ED25519;
-        inception.inceptionKey = await utils.secretToEdPublic(input.inceptionSecret);
+        inception.nextKeyDigest = await utils.secretToEdPublic(input.inceptionSecret);
         inception.recoveryKeyDigest = await utils.secretToKeyDigest(input.recoverySecret);
         did.microledger =  new MicroLedger();
         did.microledger.inception = inception;

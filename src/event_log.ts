@@ -17,8 +17,8 @@ export class EventLogSetDocument {
 
 export class EventLogPayload {
     previous: string;
-    signerPublicKey: string;
-    signerNextKeyDigest: string;
+    signerKey: string;
+    nextKeyDigest: string;
     change: EventLogRecover | EventLogSetProof | EventLogSetDocument;
 }
 

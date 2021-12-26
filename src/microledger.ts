@@ -14,7 +14,7 @@ export class MicroLedgerState {
 
 export class MicroLedgerInception {
     keyType: string;
-    inceptionKey: string;
+    nextKeyDigest: string;
     recoveryKeyDigest: string;
     async getId(): Promise<string> {
         return await utils.getCid(this);
@@ -29,15 +29,16 @@ export class MicroLedger {
         let state = new MicroLedgerState();
         state.eventId = await this.inception.getId();
         state.proofs = new Map<string, string>();
-        state.nextKeyDigest = await utils.getDigest(this.inception.inceptionKey);
+        state.nextKeyDigest = this.inception.nextKeyDigest;
+        state.recoveryKeyDigest = this.inception.recoveryKeyDigest;
         const expectedCid = await this.inception.getId();
         assert(expectedCid === cid);
         this.events.forEach(async event => {
             const previousValid = event.payload.previous === state.eventId;
             assert(previousValid);
-            const verified = utils.verify(event.proof, event.payload, event.payload.signerPublicKey);
+            const verified = utils.verify(event.proof, event.payload, event.payload.signerKey);
             assert(verified);
-            let currentSignerDigest = await utils.getDigest(event.payload.signerPublicKey);
+            let currentSignerDigest = await utils.getDigest(event.payload.signerKey);
             switch (typeof event.payload.change) {
                 case typeof EventLogSetDocument:
                     const setDocChange = <EventLogSetDocument>event.payload.change;
@@ -57,7 +58,7 @@ export class MicroLedger {
                     break;
             }
             state.eventId = await utils.getCid(this);
-            state.nextKeyDigest = event.payload.signerNextKeyDigest;
+            state.nextKeyDigest = event.payload.nextKeyDigest;
         });
         return state;
     }
