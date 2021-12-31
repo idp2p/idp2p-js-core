@@ -41,14 +41,12 @@ export const utils = {
         const key = generateSignerKey(this.decode(secret));
         const json = JSON.stringify(data);
         let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
-        const digest = await hasher.encode(bytes);
-        var signature = sign(key.secretKey, digest);
+        var signature = sign(key.secretKey, bytes);
         return this.encode(signature);
     },
     async verify(proof: string, data: any, publicKey: string) : Promise<Boolean> {
         const json = JSON.stringify(data);
         let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
-        const digest = await hasher.encode(bytes);
-        return verify(this.decode(publicKey), digest, this.decode(proof));
+        return verify(this.decode(publicKey), bytes, this.decode(proof));
     } 
 }

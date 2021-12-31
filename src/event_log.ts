@@ -1,3 +1,7 @@
+import { utils } from ".";
+
+export type EventLogChange = EventLogRecover | EventLogSetProof | EventLogSetDocument;
+
 export class EventLogRecover {
     type: string = "Recover";
     keyType: string;
@@ -19,10 +23,13 @@ export class EventLogPayload {
     previous: string;
     signerKey: string;
     nextKeyDigest: string;
-    change: EventLogRecover | EventLogSetProof | EventLogSetDocument;
+    change: EventLogChange;
 }
 
 export class EventLog {
     payload: EventLogPayload;
     proof: string;
+    async getId(): Promise<string>{
+        return await utils.getCid(this);
+    }
 }

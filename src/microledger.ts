@@ -25,6 +25,13 @@ export class MicroLedger {
     inception: MicroLedgerInception;
     @Type(() => EventLog)
     events: EventLog[];
+    async getPreviousId(): Promise<string> {
+        if (this.events.length === 0) {
+            return await this.inception.getId();
+        }
+        return await this.events[this.events.length - 1].getId();
+    }
+
     async verify(cid: string): Promise<MicroLedgerState> {
         let state = new MicroLedgerState();
         state.eventId = await this.inception.getId();
@@ -32,10 +39,13 @@ export class MicroLedger {
         state.nextKeyDigest = this.inception.nextKeyDigest;
         state.recoveryKeyDigest = this.inception.recoveryKeyDigest;
         const expectedCid = await this.inception.getId();
-        assert(expectedCid === cid);
+        assert(expectedCid === cid, "InvalidId");
+        if (!this.events) {
+            return state;
+        }
         this.events.forEach(async event => {
             const previousValid = event.payload.previous === state.eventId;
-            assert(previousValid);
+            assert(previousValid, new Error("InvalidId"));
             const verified = utils.verify(event.proof, event.payload, event.payload.signerKey);
             assert(verified);
             let currentSignerDigest = await utils.getDigest(event.payload.signerKey);
