@@ -37,16 +37,20 @@ export const utils = {
         const hash = await hasher.encode(bytes);
         return this.encode(hash);
     },
-    async sign(data: any, secret: string): Promise<string>{
+    async sign(data: any, secret: string): Promise<string> {
         const key = generateSignerKey(this.decode(secret));
         const json = JSON.stringify(data);
         let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
         var signature = sign(key.secretKey, bytes);
         return this.encode(signature);
     },
-    async verify(proof: string, data: any, publicKey: string) : Promise<Boolean> {
-        const json = JSON.stringify(data);
-        let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
-        return verify(this.decode(publicKey), bytes, this.decode(proof));
-    } 
+    async verify(proof: string, data: any, publicKey: string): Promise<Boolean> {
+        try {
+            const json = JSON.stringify(data);
+            let bytes = Uint8Array.from(json, x => x.charCodeAt(0));
+            return verify(this.decode(publicKey), bytes, this.decode(proof));
+        } catch {
+            return false;
+        }
+    }
 }
