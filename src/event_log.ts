@@ -29,7 +29,7 @@ export class EventLogPayload {
 export class EventLog {
     payload: EventLogPayload;
     proof: string;
-    async getId(): Promise<string>{
-        return await utils.getCid(this);
+    getId(): string{
+        return utils.getCid(this);
     }
 }

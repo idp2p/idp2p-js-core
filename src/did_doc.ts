@@ -29,9 +29,9 @@ export class IdDocument {
     service: Service[] = [];
 
     static from(input: CreateDocInput) : IdDocument{
-        const assertionKey = utils.secretToEdPublic(input.assertionSecret);
-        const authenticationKey = utils.secretToEdPublic(input.authenticationSecret);
-        const agreementKey = utils.secretToXPublic(input.agreementSecret);
+        const assertionKey = utils.encode(input.assertionKey);
+        const authenticationKey = utils.encode(input.authenticationKey);
+        const agreementKey = utils.encode(input.agreementKey);
         let doc = new IdDocument();
         doc.id =  `did:p2p:${input.id}`;
         doc.controller = `did:p2p:${input.id}`;
@@ -70,8 +70,8 @@ export class IdDocument {
 
 export class CreateDocInput{
     id: string;
-    assertionSecret: string;
-    authenticationSecret: string;
-    agreementSecret: string;
+    assertionKey: Uint8Array;
+    authenticationKey: Uint8Array;
+    agreementKey: Uint8Array;
     service: Service[];
 }

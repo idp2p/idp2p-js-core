@@ -1,5 +1,6 @@
+import { utils } from ".";
 import { CreateDocInput, IdDocument } from "./did_doc";
-test('did_doc generate test', async () => {
+test('did_doc generate test', () => {
     let input = new CreateDocInput();
     input.id = "bagaaiera62a5raawyfngt4d7w3jetwrks2k2xp3bcnuzhxjeqteordlsuzja";
     input.service = [{
@@ -7,9 +8,9 @@ test('did_doc generate test', async () => {
         type: "string",
         serviceEndpoint: "string"
     }];
-    input.assertionSecret = "bu4lbv3svya3ld5s6oq44mlj3vf6abyt2sktl6hla3ewrlwjat3gq";
-    input.authenticationSecret = "b3zdrsdabskurlxvdibhgbsdfyjqjdyhzhjavfo6m6xfgx4eivltq";
-    input.agreementSecret = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
+    input.assertionKey = utils.decode("bswfdlmfuec7wfl4hmv5yzt27ob43k6go7l5fiolgdmpfmm3dicqq");
+    input.authenticationKey = utils.decode("bq66f3qbf6utqercex7ikbozzpvouh2enq3xygevrxl52x2tnngja");
+    input.agreementKey = utils.decode("bgwvuhdmqfkmydasxlu3mgjph6bdfykqzudnwnk2x372elnxfnqga");
     const doc = IdDocument.from(input);
     const expected_doc: IdDocument = {
         id: "did:p2p:bagaaiera62a5raawyfngt4d7w3jetwrks2k2xp3bcnuzhxjeqteordlsuzja",
@@ -58,37 +59,3 @@ test('did_doc generate test', async () => {
     expect(doc).toEqual(expected_doc);
 });
 
-
-
-/*let doc = new IdDocument();
-    doc.id = "did:p2p:bagaaieratxin";
-    doc.controller= "did:p2p:bagaaieratxi..";
-    doc.context = [
-        "https://www.w3.org/ns/did/v1",
-        "https://w3id.org/security/suites/ed25519-2020/v1",
-        "https://w3id.org/security/suites/x25519-2020/v1"
-    ];
-    doc.verificationMethod = [{
-        id: "1",
-        type: "2",
-        controller: "3",
-        publicKeyMultibase: "4"
-    }];
-    doc.assertionMethod = ["did:p2p:bagaaieratxib#wtyb2xhyvxolbd.."];
-    doc.authentication= ["did:p2p:bagaaieratxib#3txadadmtke6d.."];
-    let plain = instanceToPlain(doc);
-    console.log(plainToInstance(IdDocument, plain));
-    console.log(JSON.stringify(plain));
-    expect(doc.id).toBe("did:p2p:bagaaieratxin");
-    let input = new CreateDocInput();
-    input.id = "1";
-    input.assertionSecret = elliptic.utils.toArray(new Array(65).join('0'), 'hex');
-    input.authenticationSecret = elliptic.utils.toArray(new Array(65).join('0'), 'hex');
-    input.agreementSecret = elliptic.utils.toArray(new Array(65).join('0'), 'hex');
-    input.services = [{
-        id: "string",
-        type: "string",
-        serviceEndpoint: "string"
-    }];
-    let doc = create_doc(input);
-    console.log(doc);*/

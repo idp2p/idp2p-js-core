@@ -4,29 +4,29 @@ import { MicroLedger, MicroLedgerInception } from "./microledger";
 import { EventLogSetDocument } from "./event_log";
 
 export class CreateIdentityInput {
-    nextSecret: string;
-    recoverySecret: string;
+    nextKeyDigest: Uint8Array;
+    recoveryKeyDigest: Uint8Array;
 }
 export class Identity {
     id: string;
     microledger: MicroLedger;
     document: IdDocument;
-    async getDigest(): Promise<string> {
+    getDigest(): Uint8Array {
         return utils.getDigest(this);
     }
-    async setDocument(signerSecret: string, nextKeyDigest: string, doc: IdDocument) {
+    setDocument(signerSecret: Uint8Array, nextKeyDigest: Uint8Array, doc: IdDocument) {
         this.document = doc;
         const change = new EventLogSetDocument();
-        change.value = await utils.getDigest(doc);
+        change.value = utils.encode(utils.getDigest(doc));
         this.microledger.saveEvent(signerSecret, nextKeyDigest, change);
     }
 
-    static async new(input: CreateIdentityInput): Promise<Identity> {
+    static new(input: CreateIdentityInput): Identity {
         let did = new Identity();
         let inception = new MicroLedgerInception();
         inception.keyType = ED25519;
-        inception.nextKeyDigest = await utils.secretToKeyDigest(input.nextSecret);
-        inception.recoveryKeyDigest = await utils.secretToKeyDigest(input.recoverySecret);
+        inception.nextKeyDigest = utils.encode(input.nextKeyDigest);
+        inception.recoveryKeyDigest = utils.encode(input.recoveryKeyDigest);
         did.microledger = new MicroLedger();
         did.microledger.inception = inception;
         return did;
