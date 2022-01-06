@@ -4,7 +4,11 @@ import { SHA256 } from "@stablelib/sha256";
 import { utils } from ".";
 import { CreateIdentityInput, Identity } from "./did";
 import { CreateDocInput, IdDocument, Service } from "./did_doc";
-import { EventLogSetProof } from "./event_log";
+
+export interface WalletStore {
+    get(name: string): Wallet;
+    save(wallet: Wallet): void;
+}
 
 export class IdentitySecret {
     nextSecret: string;
@@ -14,38 +18,62 @@ export class IdentitySecret {
     agreementSecret: string;
 }
 
-export class WalletContent {
-    identitySecret: IdentitySecret;
-    credentials: any[];
+export class IdentityClaim {
+    name: string;
+    value: string;
 }
 
-export class WalletOptions {
-    useSameKey: boolean;
-    prng: RandomSource;
+export class WalletSecret {
+    identitySecret: IdentitySecret;
+    claims: IdentityClaim[];
+}
+
+export class CreateWalletInput {
+    name: string;
+    password: string;
+    useSameKey: boolean = true;
+    providerUri: string;
+    providerSecret: string;
 }
 
 export class Wallet {
-    private prng: RandomSource;
     name: string;
     useSameKey: boolean;
+    useNativeProvider: boolean;
+    providerUri: string;
+    providerSecret: string;
     keySalt: string;
     keyDigest: string;
     did: Identity;
-    content: string;
+    secret: string;// encrypted
+}
 
-    constructor(options: WalletOptions) {
-        this.useSameKey = options.useSameKey;
-        this.prng = options.prng;
+export class WalletService {
+    private prng: RandomSource;
+    private store: WalletStore;
+
+    constructor(prng: RandomSource, store: WalletStore) {
+        this.prng = prng;
+        this.store = store;
     }
 
-    private resolve(password: string): WalletContent {
-        let content = new WalletContent();
-        return content;
+    createWallet(input: CreateWalletInput) {
+        let wallet = new Wallet();
+        const salt = this.prng.randomBytes(128);
+        const encrypted = deriveKey(SHA256, utils.decode(input.password), salt, 128, 256);
+        wallet.name = input.name;
+        wallet.keyDigest = utils.encode(encrypted);
+        wallet.keySalt = utils.encode(salt);
+        wallet.useSameKey = input.useSameKey;
+        wallet.providerUri = input.providerUri;
+        wallet.providerSecret = input.providerSecret;
+        this.store.save(wallet);
     }
 
-    private save(password: string, content: WalletContent) {
-
-        // encrypt
+    importWallet(password: string, wallet: Wallet) {
+        const salt = this.prng.randomBytes(128);
+        const _encrypted = deriveKey(SHA256, utils.decode(password), salt, 128, 256);
+        this.store.save(wallet);
     }
 
     createIdentity(password: string, service: Service[]) {
@@ -74,7 +102,7 @@ export class Wallet {
             authenticationSecret: utils.encode(authenticationSecret),
             agreementSecret: utils.encode(agreementSecret),
         };
-        this.did = did;
+
         let content = this.resolve(password);
         content.identitySecret = secret;
         this.save(password, content);
@@ -99,17 +127,11 @@ export class Wallet {
         this.save(password, content);
     }
 
-    createCredential(password: string, credentials: any[]) {
+    createClaim(password: string, claims: IdentityClaim[]) {
         let content = this.resolve(password);
-        const nextSecretDigest = utils.secretToKeyDigest(this.prng.randomBytes(256));
-        const signerSecret = utils.decode(content.identitySecret.nextSecret);
-        for (const credential of credentials){
-            content.credentials.push(credential);
+        for (const claim of claims) {
+            content.claims.push(claim);
         }
-
-        const change = new EventLogSetProof();
-
-        this.did.microledger.saveEvent(signerSecret, nextSecretDigest, change);
         content.identitySecret = { ...content.identitySecret, };
         this.save(password, content);
     }
@@ -119,21 +141,14 @@ export class Wallet {
         this.save(password, content);
     }
 
-    publish(url: string) {
-
+    private resolve(password: string): WalletSecret {
+        let content = new WalletSecret();
+        const _key = deriveKey(SHA256, utils.decode(password), utils.decode(this.keySalt), 128, 256);
+        return content;
     }
 
-    static new(name: string, password: string, prng: RandomSource): Wallet {
-        const salt = prng.randomBytes(128);
-        const encrypted = deriveKey(SHA256, utils.decode(password), salt, 128, 256);
-        let wallet = new Wallet({ useSameKey: true, prng: prng });
-        wallet.name = name;
-        wallet.keyDigest = utils.encode(encrypted);
-        wallet.keySalt = utils.encode(salt);
-        return wallet;
-    }
+    private save(password: string, content: WalletSecret) {
 
-    static import(password: string, content: string, prng: RandomSource): Wallet {
-        return new Wallet({ useSameKey: true, prng: prng });
+        // encrypt
     }
 }
