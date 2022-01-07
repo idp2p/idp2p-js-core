@@ -5,6 +5,11 @@ export class Service {
     id: string;
     type: string;
     serviceEndpoint: string;
+    constructor(id: string, typ: string, endpoint: string) {
+        this.id = id;
+        this.type = typ;
+        this.serviceEndpoint = endpoint;
+     }
 }
 
 export class VerificationMethod {
@@ -12,58 +17,49 @@ export class VerificationMethod {
     controller: string;
     type: string;
     publicKeyMultibase: string;
+    constructor(id: string, typ: string, key: string) {
+       this.id = `did:p2p:${id}#${key}`;
+       this.controller = `did:p2p:${id}`;
+       this.type = typ;
+       this.publicKeyMultibase = key;
+    }
 }
 
 export class IdDocument {
-    id: string;
-    controller: string;
     @Expose({ name: "@context" })
     @Type(() => String)
-    context: string[] = [];
+    context: string[];
+    id: string;
+    controller: string;
     @Type(() => VerificationMethod)
-    verificationMethod: VerificationMethod[] = [];
-    assertionMethod: string[] = [];
-    authentication: string[] = [];
-    keyAgreement: string[] = [];
+    verificationMethod: VerificationMethod[];
+    assertionMethod: string[] ;
+    authentication: string[];
+    keyAgreement: string[];
     @Type(() => Service)
-    service: Service[] = [];
+    service: Service[];
 
     static from(input: CreateDocInput) : IdDocument{
         const assertionKey = utils.encode(input.assertionKey);
         const authenticationKey = utils.encode(input.authenticationKey);
         const agreementKey = utils.encode(input.agreementKey);
+        let context = [];
+        context.push("https://www.w3.org/ns/did/v1");
+        context.push("https://w3id.org/security/suites/ed25519-2020/v1");
+        context.push("https://w3id.org/security/suites/x25519-2020/v1");
+        let assertionVerMethod = new VerificationMethod(input.id, ED25519, assertionKey);
+        let authenticationVerMethod = new VerificationMethod(input.id, ED25519, authenticationKey);
+        let agreementVerMethod = new VerificationMethod(input.id, X25519, agreementKey);
+
         let doc = new IdDocument();
+        doc.context = context;
         doc.id =  `did:p2p:${input.id}`;
         doc.controller = `did:p2p:${input.id}`;
         doc.service = input.service;
-        let assertionVerMethod = new VerificationMethod();
-        assertionVerMethod.controller = `did:p2p:${input.id}`;
-        assertionVerMethod.type = ED25519;
-        assertionVerMethod.id = `did:p2p:${input.id}#${assertionKey}`;
-        assertionVerMethod.publicKeyMultibase = assertionKey;
-        doc.verificationMethod.push(assertionVerMethod);
-        doc.assertionMethod.push(assertionVerMethod.id);
-    
-        let authenticationVerMethod = new VerificationMethod();
-        authenticationVerMethod.controller = `did:p2p:${input.id}`;
-        authenticationVerMethod.type = ED25519;
-        authenticationVerMethod.id = `did:p2p:${input.id}#${authenticationKey}`;
-        authenticationVerMethod.publicKeyMultibase = authenticationKey;
-        doc.verificationMethod.push(authenticationVerMethod);
-        doc.authentication.push(authenticationVerMethod.id);
-    
-        let agreementVerMethod = new VerificationMethod();
-        agreementVerMethod.controller = `did:p2p:${input.id}`;
-        agreementVerMethod.type = X25519;
-        agreementVerMethod.id = `did:p2p:${input.id}#${agreementKey}`;;
-        agreementVerMethod.publicKeyMultibase = agreementKey;
-        doc.verificationMethod.push(agreementVerMethod);
-        doc.keyAgreement.push(agreementVerMethod.id);
-    
-        doc.context.push("https://www.w3.org/ns/did/v1");
-        doc.context.push("https://w3id.org/security/suites/ed25519-2020/v1");
-        doc.context.push("https://w3id.org/security/suites/x25519-2020/v1");
-        doc.service = input.service;
+        doc.verificationMethod = [assertionVerMethod, authenticationVerMethod, agreementVerMethod];
+        doc.assertionMethod = [assertionVerMethod.id];
+        doc.authentication = [authenticationVerMethod.id];
+        doc.keyAgreement = [agreementVerMethod.id];
         return doc;
     } 
 }

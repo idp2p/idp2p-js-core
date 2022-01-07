@@ -2,12 +2,20 @@ import { CID } from 'multiformats/cid';
 import { generateKeyPairFromSeed as generateAgreementKey } from "@stablelib/x25519";
 import { generateKeyPairFromSeed as generateSignerKey, sign, verify } from "@stablelib/ed25519";
 import { base32 } from "multiformats/bases/base32";
+import { deriveKey } from "@stablelib/pbkdf2";
 import { hash } from '@stablelib/sha256';
+import { SHA256 } from "@stablelib/sha256";
 import { create } from 'multiformats/hashes/digest';
 export const ED25519 = "Ed25519VerificationKey2020";
 export const X25519 = "X25519KeyAgreementKey2020";
 
 export const utils = {
+    toBytes(str: string): Uint8Array{
+        return Uint8Array.from(str, x => x.charCodeAt(0));
+    },
+    toString(arr: Uint8Array): string{
+        return String.fromCharCode.apply(null, Array.from(arr));
+    },
     encode(bytes: Uint8Array): string {
         return base32.encode(bytes)
     },
@@ -35,6 +43,10 @@ export const utils = {
     getDigest(data: any): Uint8Array {
         let bytes = Uint8Array.from(JSON.stringify(data), x => x.charCodeAt(0));
         return hash(bytes);
+    },
+    deriveKey(password: string, salt: Uint8Array): Uint8Array{
+        const pwdBytes = this.toBytes(password);
+        return deriveKey(SHA256, pwdBytes, salt, 128, 32);
     },
     sign(data: any, secret: Uint8Array): Uint8Array {
         const key = generateSignerKey(secret);

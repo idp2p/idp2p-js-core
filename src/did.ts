@@ -28,6 +28,7 @@ export class Identity {
         inception.nextKeyDigest = utils.encode(input.nextKeyDigest);
         inception.recoveryKeyDigest = utils.encode(input.recoveryKeyDigest);
         did.microledger = new MicroLedger();
+        did.id = utils.getCid(inception);
         did.microledger.inception = inception;
         return did;
     }

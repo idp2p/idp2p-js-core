@@ -32,7 +32,7 @@ export class MicroLedgerInception {
 export class MicroLedger {
     inception: MicroLedgerInception;
     @Type(() => EventLog)
-    events: EventLog[];
+    events: EventLog[] = [];
     getPreviousId(): string {
         if (this.events.length === 0) {
             return this.inception.getId();
@@ -51,8 +51,8 @@ export class MicroLedger {
         };
         let proof = utils.sign(payload, signerSecret);
         let eventLog = new EventLog();
-        eventLog.payload = payload,
-            eventLog.proof = utils.encode(proof)
+        eventLog.payload = payload;
+        eventLog.proof = utils.encode(proof);
         this.events.push(eventLog);
     }
 
