@@ -1,5 +1,5 @@
+import { AESKW } from "@stablelib/aes-kw";
 import { RandomSource } from "@stablelib/random";
-import { hash } from "@stablelib/sha256";
 import { plainToInstance } from "class-transformer";
 import { utils } from ".";
 import { CreateIdentityInput, Identity } from "./did";
@@ -30,37 +30,48 @@ export class WalletSecret {
 }
 
 export class CreateWalletInput {
-    name: string;
+    id: string;
     password: string;
-    useSameKey: boolean = true;
     providerUri: string;
     providerSecret: string;
 }
 
-export class Account{
-    username: string;
+export class Account {
+    name: string;
     useSameKey: boolean;
-    useNativeProvider: boolean;
-    providerUri: string;
-    providerSecret: string;
     did: Identity;
-    protected: string;
+    content: string;
 }
 
 export class Wallet {
-    keySalt: string;
-    keyDigest: string;
+    id: string; // unique identifier
+    pwdKeySalt: string;
+    wrappedKey: string;
+    storage?: string; // if has a provider = uri, not = local
     accounts: Account[] = [];
+    private getEncKey(password: string): Uint8Array | undefined {
+        try {
+            const pwdKey = utils.deriveKey(password, utils.decode(this.pwdKeySalt));
+            const wrapper = new AESKW(pwdKey);
+            return wrapper.unwrapKey(utils.decode(this.wrappedKey));
+        } catch {
+            return undefined;
+        }
+    }
+    login(password: string): boolean {
+        const result = this.getEncKey(password);
+        return result !== undefined;
+    }
     encrypt(password: string, secrets: WalletSecret): string {
-        const key = utils.deriveKey(password, utils.decode(this.keySalt));
+        const key = this.getEncKey(password);
         const aesCtr = new aesjs.ModeOfOperation.ctr(key);
         const bytes = utils.toBytes(JSON.stringify(secrets));
         return utils.toString(aesCtr.encrypt(bytes));
     }
-    decrypt(password: string, encryptedSecrets: string): WalletSecret {
-        const key = utils.deriveKey(password, utils.decode(this.keySalt));
+    decrypt(password: string, encryptedContent: string): WalletSecret {
+        const key = this.getEncKey(password);
         const aesCtr = new aesjs.ModeOfOperation.ctr(key);
-        const encryptedContentBytes = utils.toBytes(encryptedSecrets);
+        const encryptedContentBytes = utils.toBytes(encryptedContent);
         const decrypted = utils.toString(aesCtr.decrypt(encryptedContentBytes));
         return plainToInstance(WalletSecret, JSON.parse(decrypted));
     }
@@ -75,16 +86,20 @@ export class WalletService {
         this.store = store;
     }
 
-    createWallet(password: string, ) {
-        let wallet = new Wallet();
+    createWallet(id: string, password: string, storage?: string) {
+        const encKey = this.prng.randomBytes(32);
         const salt = this.prng.randomBytes(16);
         const key = utils.deriveKey(password, salt);
-        wallet.keyDigest = utils.encode(hash(key));
-        wallet.keySalt = utils.encode(salt);
+        const wrapper = new AESKW(key);
+        let wallet = new Wallet();
+        wallet.storage = storage;
+        wallet.id = id;
+        wallet.wrappedKey = utils.encode(wrapper.wrapKey(encKey));
+        wallet.pwdKeySalt = utils.encode(salt);
         this.store.save(wallet);
     }
 
-    createAccount(username: string, password: string, claims: IdentityClaim[]) {
+    createAccount(name: string, password: string, claims: IdentityClaim[]) {
         let wallet = this.store.get();
         const inceptionSecret = this.prng.randomBytes(32);
         const nextSecret = this.prng.randomBytes(32);
@@ -112,8 +127,8 @@ export class WalletService {
         };
         let account = new Account();
         account.did = did;
-        account.username = username;
-        account.protected = wallet.encrypt(password, { identitySecret: secret, claims: claims });
+        account.name = name;
+        account.content = wallet.encrypt(password, { identitySecret: secret, claims: claims });
         wallet.accounts.push(account);
         this.store.save(wallet);
     }

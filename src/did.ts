@@ -1,5 +1,5 @@
 import { IdDocument } from "./did_doc";
-import { ED25519, utils } from ".";
+import {  utils } from ".";
 import { MicroLedger, MicroLedgerInception } from "./microledger";
 import { EventLogSetDocument } from "./event_log";
 
@@ -16,17 +16,15 @@ export class Identity {
     }
     setDocument(signerSecret: Uint8Array, nextKeyDigest: Uint8Array, doc: IdDocument) {
         this.document = doc;
-        const change = new EventLogSetDocument();
-        change.value = utils.encode(utils.getDigest(doc));
+        const change = new EventLogSetDocument(utils.encode(utils.getDigest(doc)));
         this.microledger.saveEvent(signerSecret, nextKeyDigest, change);
     }
 
     static new(input: CreateIdentityInput): Identity {
         let did = new Identity();
-        let inception = new MicroLedgerInception();
-        inception.keyType = ED25519;
-        inception.nextKeyDigest = utils.encode(input.nextKeyDigest);
-        inception.recoveryKeyDigest = utils.encode(input.recoveryKeyDigest);
+        const nextKeyDigest = utils.encode(input.nextKeyDigest);
+        const recoveryKeyDigest = utils.encode(input.recoveryKeyDigest);
+        const inception = new MicroLedgerInception(nextKeyDigest, recoveryKeyDigest);
         did.microledger = new MicroLedger();
         did.id = utils.getCid(inception);
         did.microledger.inception = inception;

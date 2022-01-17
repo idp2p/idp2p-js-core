@@ -8,7 +8,7 @@ import {
     EventLogSetDocument,
     EventLogSetProof
 } from "./event_log";
-import { utils } from ".";
+import { utils, ED25519 } from ".";
 import { hash } from "@stablelib/sha256";
 
 export class MicroLedgerState {
@@ -24,6 +24,11 @@ export class MicroLedgerInception {
     keyType: string;
     nextKeyDigest: string;
     recoveryKeyDigest: string;
+    constructor( nextKeyDigest: string, recoveryKeyDigest: string) {
+        this.keyType = ED25519,
+        this.nextKeyDigest = nextKeyDigest;
+        this.recoveryKeyDigest = recoveryKeyDigest;
+    }
     getId(): string {
         return utils.getCid(this);
     }
@@ -33,6 +38,9 @@ export class MicroLedger {
     inception: MicroLedgerInception;
     @Type(() => EventLog)
     events: EventLog[] = [];
+    constructor() {
+       
+    }
     getPreviousId(): string {
         if (this.events.length === 0) {
             return this.inception.getId();
@@ -43,16 +51,15 @@ export class MicroLedger {
     saveEvent(signerSecret: Uint8Array, nextKeyDigest: Uint8Array, change: EventLogChange) {
         let signerKey = utils.secretToEdPublic(signerSecret);
         let previous = this.getPreviousId();
-        let payload: EventLogPayload = {
-            previous: previous,
-            nextKeyDigest: utils.encode(nextKeyDigest),
-            signerKey: utils.encode(signerKey),
-            change: change,
-        };
+        let payload = new EventLogPayload(
+            previous,
+            utils.encode(nextKeyDigest),
+            utils.encode(signerKey),
+            change,
+            Math.round(new Date().getTime() / 1000)
+        );
         let proof = utils.sign(payload, signerSecret);
-        let eventLog = new EventLog();
-        eventLog.payload = payload;
-        eventLog.proof = utils.encode(proof);
+        let eventLog = new EventLog(payload, utils.encode(proof));
         this.events.push(eventLog);
     }
 

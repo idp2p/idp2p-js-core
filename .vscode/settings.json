@@ -1,5 +1,9 @@
 {
     "files.exclude": {
+        "**/jest.config.js": true,
+        "**/jest.setup.ts": true,
+        "**/tsconfig.json": true,
+        "**/LICENSE": true,
         "**/node_modules": true,
         "**/package-lock.json": true
     }

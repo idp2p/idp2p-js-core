@@ -1,8 +1,7 @@
 import { defaultRandomSource } from "@stablelib/random";
-import { utils } from ".";
-import { CreateWalletInput, Wallet, WalletSecret, WalletService, WalletStore} from "./wallet";
+import { CreateWalletInput, Wallet, WalletSecret, WalletService, WalletStore } from "./wallet";
 
-class TestWalletStore implements WalletStore{
+class TestWalletStore implements WalletStore {
     private wallet: Wallet;
     get(): Wallet {
         return this.wallet;
@@ -12,27 +11,28 @@ class TestWalletStore implements WalletStore{
     }
 
 }
-test('wallet test',  () => {
-   let wallet = new Wallet();
-   const salt = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-   wallet.keySalt = utils.encode(new Uint8Array(salt));
-   let secrets = new WalletSecret();
-   secrets.claims.push({name: "key", value: "value"});
-   let encrypted = wallet.encrypt("123456", secrets);
-   const s = wallet.decrypt("123456", encrypted);
-   expect(s.claims[0].name).toBe("key");
+test('wallet test', () => {
+    let store = new TestWalletStore();
+    let walletService = new WalletService(defaultRandomSource, store);
+    walletService.createWallet("ademcaglin","123456");
+    let secrets = new WalletSecret();
+    secrets.claims.push({ name: "key", value: "value" });
+    const wallet =store.get();
+    let encrypted = wallet.encrypt("123456", secrets);
+    const s = wallet.decrypt("123456", encrypted);
+    expect(s.claims[0].name).toBe("key");
 });
 
-test('wallet service test',  () => {
-    let store =new TestWalletStore();
+test('wallet service test', () => {
+    let store = new TestWalletStore();
     let walletService = new WalletService(defaultRandomSource, store);
     let input = new CreateWalletInput();
-    input.name = "ademcaglin";
+    input.id = "ademcaglin";
     input.password = "123456";
     input.providerUri = "http://localhost:3000";
     input.providerSecret = "123456";
-    walletService.createWallet("123456");
-    walletService.createAccount("ademcaglin", "123456", [{name: "name", value: "value"}]);
-    let wallet = store.get();
-    console.log(JSON.stringify(wallet.accounts[0].did.document));
- });
+    walletService.createWallet("ademcaglin", "123456");
+    walletService.createAccount("ademcaglin", "123456", [{ name: "name", value: "value" }]);
+    //let wallet = store.get();
+    //console.log(JSON.stringify(instanceToPlain(wallet.accounts[0].did.document)));
+});
