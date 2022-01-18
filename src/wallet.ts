@@ -8,8 +8,8 @@ import { CreateDocInput, IdDocument } from "./did_doc";
 const aesjs = require('aes-js');
 
 export interface WalletStore {
-    get(): Wallet;
-    save(wallet: Wallet): void;
+    get(): Promise<Wallet>;
+    save(wallet: Wallet): Promise<void>;
 }
 
 export class IdentitySecret {
@@ -88,7 +88,7 @@ export class WalletService {
         this.store = store;
     }
 
-    createWallet(password: string, providerUri?: string): string {
+    async createWallet(password: string, providerUri?: string): Promise<string> {
         const encKey = this.prng.randomBytes(32);
         const salt = this.prng.randomBytes(16);
         const key = utils.deriveKey(password, salt);
@@ -97,12 +97,12 @@ export class WalletService {
         wallet.providerUri = providerUri;
         wallet.masterKeySalt = utils.encode(salt);
         wallet.wrappedEncKey = utils.encode(wrapper.wrapKey(encKey));
-        this.store.save(wallet);
+        await this.store.save(wallet);
         return utils.encode(salt);
     }
 
-    createAccount(name: string, password: string, claims: IdentityClaim[]): Uint8Array {
-        let wallet = this.store.get();
+    async createAccount(name: string, password: string, claims: IdentityClaim[]): Promise<Uint8Array> {
+        let wallet = await this.store.get();
         const inceptionSecret = this.prng.randomBytes(32);
         const nextSecret = this.prng.randomBytes(32);
         const recoverySecret = this.prng.randomBytes(32);
@@ -131,7 +131,7 @@ export class WalletService {
         account.name = name;
         account.encryptedContent = wallet.encrypt(password, { identitySecret: secret, claims: claims });
         wallet.accounts.push(account);
-        this.store.save(wallet);
+        await this.store.save(wallet);
         return recoverySecret;
     }
 }
