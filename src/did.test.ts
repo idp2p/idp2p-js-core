@@ -1,14 +1,12 @@
-//import { instanceToPlain, plainToInstance } from "class-transformer";
-//import {CreateIdentityInput, Identity} from "./did";
+import { utils } from ".";
+import {CreateIdentityInput, Identity} from "./did";
 
-test('did parse',  () => {
-    /*let input = new CreateIdentityInput();
-    input.recoveryKeyDigest = utils. "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
-    input.nextKeyDigest = "bf7zibj25vw2jfua7f2mph4cii7wlffw63pr5rianjq3wtmicwcxa";
+test('did create test',  () => {
+    const secret = "bd6yg2qeifnixj4x3z2fclp5wd3i6ysjlfkxewqqt2thie6lfnkma";
+    const expectedId = "bagaaieravphdumkejbohc7auy7c5od6dm6t2kw6ljhsoml3aoarzbhxxzeea";
+    let input = new CreateIdentityInput();
+    input.nextKeyDigest = utils.secretToKeyDigest(utils.decode(secret));
+    input.recoveryKeyDigest = utils.secretToKeyDigest(utils.decode(secret));
     let did = Identity.new(input);
-    let plain = instanceToPlain(did);
-    console.log(plainToInstance(Identity, plain));
-    let str = JSON.stringify(plain);
-    console.log(str);*/
-    //expect(doc.id).toBe("did:p2p:bagaaieratxin");
+    expect(did.id).toBe(expectedId);
 });
