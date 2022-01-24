@@ -1,4 +1,5 @@
 import { defaultRandomSource } from "@stablelib/random";
+import { instanceToPlain } from "class-transformer";
 import { Wallet, AccountContent, WalletService, WalletStore } from "./wallet";
 
 class TestWalletStore implements WalletStore {
@@ -29,6 +30,18 @@ test('wallet service test', async () => {
     walletService.createWallet("123456");
     walletService.createAccount("ademcaglin", "123456", [{ name: "name", value: "value" }]);
     const wallet = await store.get();
+    /*const rawResponse = await fetch("http://localhost:5001/publish", {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(wallet.accounts[0].identity)
+    });
+    const resp = await rawResponse.json();
+
+    console.log(resp);*/
+    console.log(instanceToPlain( wallet.accounts[0].identity));
     const content = wallet.decrypt("123456", wallet.accounts[0].encryptedContent);
     expect(content.identitySecret.agreementSecret).toBeTruthy();
 });

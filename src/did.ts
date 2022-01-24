@@ -25,8 +25,8 @@ export class Identity {
         const nextKeyDigest = utils.encode(input.nextKeyDigest);
         const recoveryKeyDigest = utils.encode(input.recoveryKeyDigest);
         const inception = new MicroLedgerInception(nextKeyDigest, recoveryKeyDigest);
-        did.microledger = new MicroLedger();
         did.id = utils.getCid(inception);
+        did.microledger = new MicroLedger();
         did.microledger.inception = inception;
         return did;
     }

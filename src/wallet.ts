@@ -39,9 +39,8 @@ export class Account {
 export class Wallet {
     masterKeySalt: string;
     wrappedEncKey: string;
-    providerUri?: string; 
     accounts: Account[] = [];
-    private getMasterKey(password: string): Uint8Array{
+    private getMasterKey(password: string): Uint8Array {
         return utils.deriveKey(password, utils.decode(this.masterKeySalt));
     }
 
@@ -72,10 +71,10 @@ export class Wallet {
         const decrypted = utils.toString(aesCtr.decrypt(encryptedContentBytes));
         return plainToInstance(AccountContent, JSON.parse(decrypted));
     }
-    getId(password: string): string{
+    getId(password: string): string {
         const masterKey = this.getMasterKey(password);
         const secret = hash(masterKey);
-        return utils.encode(utils.secretToEdPublic(secret));    
+        return utils.encode(utils.secretToEdPublic(secret));
     }
 }
 
@@ -88,13 +87,12 @@ export class WalletService {
         this.store = store;
     }
 
-    async createWallet(password: string, providerUri?: string): Promise<string> {
+    async createWallet(password: string): Promise<string> {
         const encKey = this.prng.randomBytes(32);
         const salt = this.prng.randomBytes(16);
         const key = utils.deriveKey(password, salt);
         const wrapper = new AESKW(key);
         let wallet = new Wallet();
-        wallet.providerUri = providerUri;
         wallet.masterKeySalt = utils.encode(salt);
         wallet.wrappedEncKey = utils.encode(wrapper.wrapKey(encKey));
         await this.store.save(wallet);
