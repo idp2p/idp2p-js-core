@@ -31,6 +31,7 @@
         "esbuild-node:watch": "esbuild src/cli.ts --bundle --platform=node --watch --sourcemap=external --outfile=dist/esbuild/cli.js"
     },
     "devDependencies": {
+        "@types/aes-js": "^3.1.1",
         "@types/jest": "^26.0.21",
         "@types/node": "^15.0.1",
         "@typescript-eslint/eslint-plugin": "^4.19.0",
@@ -44,12 +45,12 @@
         "typescript": "^4.2.3"
     },
     "dependencies": {
+        "@stablelib/aes-kw": "^1.0.1",
         "@stablelib/ed25519": "^1.0.2",
         "@stablelib/pbkdf2": "^1.0.1",
         "@stablelib/random": "^1.0.1",
         "@stablelib/sha256": "^1.0.1",
         "@stablelib/x25519": "^1.0.1",
-        "@stablelib/aes-kw": "^1.0.1",
         "aes-js": "^3.1.2",
         "class-transformer": "^0.5.1",
         "multiformats": "^9.5.4",

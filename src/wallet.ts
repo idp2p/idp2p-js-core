@@ -5,7 +5,7 @@ import { plainToInstance } from "class-transformer";
 import { utils } from ".";
 import { CreateIdentityInput, Identity } from "./did";
 import { CreateDocInput, IdDocument } from "./did_doc";
-const aesjs = require('aes-js');
+import * as aesjs from "aes-js";
 
 export interface WalletStore {
     get(): Promise<Wallet>;
@@ -60,13 +60,13 @@ export class Wallet {
     }
     encrypt(password: string, content: AccountContent): string {
         const key = this.getEncKey(password);
-        const aesCtr = new aesjs.ModeOfOperation.ctr(key);
+        const aesCtr = new aesjs.ModeOfOperation.ctr(key as aesjs.ByteSource);
         const bytes = utils.toBytes(JSON.stringify(content));
         return utils.toString(aesCtr.encrypt(bytes));
     }
     decrypt(password: string, encryptedContent: string): AccountContent {
         const key = this.getEncKey(password);
-        const aesCtr = new aesjs.ModeOfOperation.ctr(key);
+        const aesCtr = new aesjs.ModeOfOperation.ctr(key as aesjs.ByteSource);
         const encryptedContentBytes = utils.toBytes(encryptedContent);
         const decrypted = utils.toString(aesCtr.decrypt(encryptedContentBytes));
         return plainToInstance(AccountContent, JSON.parse(decrypted));
